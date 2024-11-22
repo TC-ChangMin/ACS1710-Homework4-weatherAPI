@@ -45,20 +45,26 @@ def results():
     """Displays results for current weather conditions."""
     # TODO: Use 'request.args' to retrieve the city & units from the query
     # parameters.
-    city = ''
-    units = ''
+    city = request.args.get('city')
+    units = request.args.get('units')
 
     params = {
         # TODO: Enter query parameters here for the 'appid' (your api key),
         # the city, and the units (metric or imperial).
         # See the documentation here: https://openweathermap.org/current
 
-    }
+        'appid': API_KEY,
+        'q': city,
+        'units': units
 
+    }
+    
     result_json = requests.get(API_URL, params=params).json()
 
     # Uncomment the line below to see the results of the API call!
-    # pp.pprint(result_json)
+    print(f"="*100)
+    print(f"="*100)
+    pp.pprint(result_json)
 
     # TODO: Replace the empty variables below with their appropriate values.
     # You'll need to retrieve these from the result_json object above.
@@ -68,13 +74,13 @@ def results():
     # function.
     context = {
         'date': datetime.now(),
-        'city': '',
-        'description': '',
-        'temp': '',
-        'humidity': '',
-        'wind_speed': '',
-        'sunrise': '',
-        'sunset': '',
+        'city': result_json['name'],
+        'description': result_json['weather'][0]['description'],
+        'temp': result_json['main']['temp'],
+        'humidity': result_json['main']['humidity'],
+        'wind_speed': result_json['wind']['speed'],
+        'sunrise': result_json['sys']['sunrise'],
+        'sunset': result_json['sys']['sunset'],
         'units_letter': get_letter_for_units(units)
     }
 
@@ -86,20 +92,51 @@ def comparison_results():
     """Displays the relative weather for 2 different cities."""
     # TODO: Use 'request.args' to retrieve the cities & units from the query
     # parameters.
-    city1 = ''
-    city2 = ''
-    units = ''
+    city1 = request.args.get('city1')
+    city2 = request.args.get('city2')
+    units = request.args.get('units')
 
     # TODO: Make 2 API calls, one for each city. HINT: You may want to write a 
     # helper function for this!
 
+    def get_hours_from_timestamp(unix_timestamp):
+        # Convert Unix timestamp to datetime and get the hour as an integer
+        local_time = datetime.fromtimestamp(unix_timestamp)
+        return local_time.hour
 
+    def make_api_call(city, units):
+        params = {
+            'appid': API_KEY,
+            'q': city,
+            'units': units
+        }
+        return requests.get(API_URL, params=params).json()
+    
+    city1_info = make_api_call(city1, units)
+    city2_info = make_api_call(city2, units) 
+    
     # TODO: Pass the information for both cities in the context. Make sure to
     # pass info for the temperature, humidity, wind speed, and sunset time!
     # HINT: It may be useful to create 2 new dictionaries, `city1_info` and 
     # `city2_info`, to organize the data.
     context = {
+        'city1': city1,
+        'city2': city2,
+        'date': datetime.now(),
 
+        'city1_info': {
+            'temp': city1_info['main']['temp'],
+            'humidity': city1_info['main']['humidity'],
+            'wind_speed': city1_info['wind']['speed'],
+            'sunset': get_hours_from_timestamp(city1_info['sys']['sunset'])
+        },
+        'city2_info': {
+            'temp': city2_info['main']['temp'],
+            'humidity': city2_info['main']['humidity'],
+            'wind_speed': city2_info['wind']['speed'],
+            'sunset': get_hours_from_timestamp(city2_info['sys']['sunset'])
+        },
+        'units': get_letter_for_units(units)
     }
 
     return render_template('comparison_results.html', **context)
@@ -107,4 +144,4 @@ def comparison_results():
 
 if __name__ == '__main__':
     app.config['ENV'] = 'development'
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

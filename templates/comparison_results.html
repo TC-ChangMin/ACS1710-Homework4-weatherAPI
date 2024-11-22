@@ -1,35 +1,57 @@
-{% extends 'base.html' %}
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 
 <section class="weather-form">
-    {# 
-        TODO: Replace the hard-coded cities and date below with data from the 
-        server.
-    #}
-    <h1>Weather in [CITY1] and [CITY2]</h1>
-    <p>[TODAYS_DATE]</p>
+  {# TODO: Replace the hard-coded cities and date below with data from the
+  server. #}
+  <h1>Weather in {{ city1 }} and {{ city2 }}</h1>
+  <p>{{ date }}</p>
 
+  {# TODO: Add the temperature, description, and min & max temperature below.
+  Replace 'F' with the appropriate units. #}
+  <p>
+    It is {{ (city1_info.temp - city2_info.temp) | abs | round(2) }} {{ units }}
+    <!--  -->
+    {% if city1_info.temp > city2_info.temp %} warmer {% else %} colder {% endif
+    %}
+    <!--  -->
+    in {{ city1 }} than in {{ city2 }} today.
+  </p>
 
-    {#
-        TODO: Add the temperature, description, and min & max temperature below.
-        Replace 'F' with the appropriate units.
-    #}
-    <p>
-        It is [NUM_DEGREES] [UNITS] [WARMER/COLDER] in [CITY1] than in [CITY2] today.
-    </p>
+  <p>
+    The humidity in {{ city1 }} is {{ (city1_info.temp - city2_info.temp) | abs
+    | round(2) }}
+    <!--  -->
+    {% if city1_info.humidity > city2_info.humidity %} greater {% else %} less
+    {% endif %}
+    <!--  -->
+    than in {{ city2 }}.
+  </p>
 
-    <p>
-        The humidity in [CITY1] is [AMOUNT] [GREATER/LESS] than in [CITY2].
-    </p>
+  <p>
+    The wind speed in {{ city1 }} is {{ (city1_info.wind_speed -
+    city2_info.wind_speed) | abs | round(2) }}
+    <!--  -->
+    {% if city1_info.wind_speed > city2_info.wind_speed %} greater {% else %}
+    less {% endif %}
+    <!--  -->
+    than in {{ city2 }}.
+  </p>
 
-    <p>
-        The wind speed in [CITY1] is [AMOUNT] [GREATER/LESS] than in [CITY2].
-    </p>
-
-    <p>
-        The sun sets in [CITY1] [HOURS] hours [EARLIER/LATER] than in [CITY2].
-    </p>
-    
+  <p>
+    The sun sets in {{ city1 }}
+    <!--  -->
+    {{ (city1_info.sunset - city2_info.sunset) | abs }}
+    <!--  -->
+    {% if city1_info.sunset > city2_info.sunset %} hour(s) later
+    <!--  -->
+    {% elif city1_info.sunset < city2_info.sunset %} hour(s) earlier
+    <!--  -->
+    {% else %} hours earlier/later (same time)
+    <!--  -->
+    {% endif %}
+    <!--  -->
+    than in {{ city2 }}.
+  </p>
 </section>
 
 {% endblock %}
